@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-ablate"
+version = "0.1.0"
+description = "智能体消融实验测评框架：多平台、多模型、多 Skill 版本的统一指标评估"
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+agent-ablate = "agent_ablate.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+agent_ablate = ["static/*.js"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

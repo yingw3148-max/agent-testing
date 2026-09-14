@@ -1,0 +1,50 @@
+# NCE 工具注册表：工具名 + JSON Schema（用于幻觉/参数/取值判定）
+tools:
+  - name: get_weather
+    description: 查询指定城市的当前天气
+    parameters:
+      type: object
+      properties:
+        city:
+          type: string
+          description: 城市名
+        unit:
+          type: string
+          enum: ["c", "f"]
+          description: 温度单位，摄氏度 c 或华氏度 f
+      required: [city]
+      additionalProperties: false
+
+  - name: calculator
+    description: 计算数学表达式
+    parameters:
+      type: object
+      properties:
+        expression:
+          type: string
+          pattern: "^[0-9+\\-*/(). ]+$"
+          description: 仅允许数字与四则运算符的表达式
+      required: [expression]
+      additionalProperties: false
+
+  - name: search_knowledge
+    description: 在内部知识库中检索知识
+    parameters:
+      type: object
+      properties:
+        query:
+          type: string
+          description: 检索关键词
+      required: [query]
+      additionalProperties: false
+
+  - name: get_current_time
+    description: 获取当前时间
+    parameters:
+      type: object
+      properties:
+        timezone:
+          type: string
+          pattern: "^[A-Za-z_/]+$"
+          description: 时区名，如 UTC、Asia/Shanghai
+      additionalProperties: false

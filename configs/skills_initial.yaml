@@ -1,0 +1,11 @@
+# 初始版 Skill 注册表
+version: initial
+skills:
+  - name: pdf_reader
+    description: 读取并解析 PDF 文件内容
+    content: |
+      你是 PDF 阅读 Skill。给定 PDF 路径，提取其文本与表格内容供主智能体使用。
+  - name: doc_translator
+    description: 将文档翻译成指定语言
+    content: |
+      你是文档翻译 Skill。给定文本与目标语言，输出忠实流畅的译文。

@@ -1,0 +1,64 @@
+# 消融实验配置：6 个实验组
+#   基础模型（型号）                -> base
+#   基础模型（型号）+ 初始 Skill     -> base_skill_init
+#   基础模型（型号）+ 优化 Skill     -> base_skill_opt
+#   后训练模型（型号）              -> post
+#   后训练模型（型号）+ 初始 Skill   -> post_skill_init
+#   后训练模型（型号）+ 优化 Skill   -> post_skill_opt
+#
+# 演示默认使用 mock 平台（无需 API，直接复现任务里的脚本化轨迹）。
+# 接真实模型：把 platform 改为 openai_compatible，并填 model.base_url / api_key_env。
+experiment: agent-ablation-demo
+
+# NCE 工具注册表（Schema 用于幻觉/参数/取值判定）
+nce_tools: configs/nce_tools.yaml
+
+# 指标对比的基线组
+baseline: base
+
+# 可选：LLM Judge（不配置则完全离线，语义类判定自动跳过）
+# judge:
+#   model: judge-model
+#   base_url: https://api.example.com/v1
+#   api_key_env: JUDGE_API_KEY
+
+defaults:
+  platform: mock
+  max_turns: 12
+  executor: demo            # NCE 工具执行器：demo 内置演示；或 "pkg.module:factory"
+  skill_tool_name: Skill
+
+groups:
+  - id: base
+    platform: mock
+    model:
+      name: base-model-X
+
+  - id: base_skill_init
+    platform: mock
+    model:
+      name: base-model-X
+    skills: configs/skills_initial.yaml
+
+  - id: base_skill_opt
+    platform: mock
+    model:
+      name: base-model-X
+    skills: configs/skills_optimized.yaml
+
+  - id: post
+    platform: mock
+    model:
+      name: posttrained-model-X
+
+  - id: post_skill_init
+    platform: mock
+    model:
+      name: posttrained-model-X
+    skills: configs/skills_initial.yaml
+
+  - id: post_skill_opt
+    platform: mock
+    model:
+      name: posttrained-model-X
+    skills: configs/skills_optimized.yaml

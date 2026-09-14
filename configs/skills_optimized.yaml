@@ -1,0 +1,20 @@
+# 优化版 Skill 注册表：在初始版基础上新增面向联网检索与数据分析的 Skill，
+# 并强化描述，降低误加载/重复加载
+version: optimized
+skills:
+  - name: pdf_reader
+    description: 读取并解析 PDF 文件内容（仅在任务涉及本地 PDF 文件时使用）
+    content: |
+      你是 PDF 阅读 Skill。给定 PDF 路径，提取其文本与表格内容供主智能体使用。
+  - name: doc_translator
+    description: 将文档翻译成指定语言（仅在任务明确要求翻译时使用）
+    content: |
+      你是文档翻译 Skill。给定文本与目标语言，输出忠实流畅的译文。
+  - name: web_search
+    description: 联网检索公开网页信息（仅在知识库无法覆盖的最新/外部信息时使用）
+    content: |
+      你是联网检索 Skill。给定检索词，返回相关网页摘要与来源链接。
+  - name: data_analyst
+    description: 对结构化数据做统计分析与绘图（仅在任务提供表格/数据集时使用）
+    content: |
+      你是数据分析 Skill。给定数据与问题，输出统计结论，必要时给出图表建议。
