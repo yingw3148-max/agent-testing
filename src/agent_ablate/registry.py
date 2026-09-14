@@ -53,6 +53,11 @@ class ToolSpec:
     description: str = ""
     schema: dict[str, Any] = field(default_factory=lambda: {
         "type": "object", "properties": {}, "additionalProperties": False})
+    # 执行方式声明，两种取值：
+    #   runtime: {type: http, url: ..., method: GET, headers: {...}}   NCE API 接口工具
+    #   runtime: {type: cli, command: "...", timeout: 60}              命令行工具
+    # 不声明 runtime 的工具回退到 Python 执行器（executor 配置）。
+    runtime: dict[str, Any] | None = None
 
 
 _TYPE_CHECKERS = {
@@ -75,7 +80,8 @@ class ToolRegistry:
             data = yaml.safe_load(f) or {}
         tools = [ToolSpec(name=t["name"],
                           description=t.get("description", ""),
-                          schema=t.get("parameters") or t.get("schema") or {})
+                          schema=t.get("parameters") or t.get("schema") or {},
+                          runtime=t.get("runtime"))
                  for t in data.get("tools", [])]
         return cls(tools)
 
@@ -84,6 +90,13 @@ class ToolRegistry:
 
     def get(self, name: str) -> ToolSpec | None:
         return self._tools.get(name)
+
+    def list(self) -> list[ToolSpec]:
+        return list(self._tools.values())
+
+    def runtimes(self) -> dict[str, dict[str, Any]]:
+        """返回声明了 runtime 的工具名 -> runtime 配置。"""
+        return {t.name: t.runtime for t in self._tools.values() if t.runtime}
 
     def describe(self) -> list[dict[str, Any]]:
         return [{"name": t.name, "description": t.description, "schema": t.schema}

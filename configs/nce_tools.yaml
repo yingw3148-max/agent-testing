@@ -48,3 +48,45 @@ tools:
           pattern: "^[A-Za-z_/]+$"
           description: 时区名，如 UTC、Asia/Shanghai
       additionalProperties: false
+
+  # ============ 真实 NCE 工具接入示例（去掉注释即可用） ============
+  # 两种执行方式：runtime.type = http（NCE API 接口工具）或 cli（命令行工具）。
+  # 未声明 runtime 的工具（如上面 4 个演示工具）回退到 Python 执行器（executor: demo）。
+
+  # —— 示例 1：NCE API 接口工具 ——
+  # URL 中 {参数名} 占位；GET/DELETE 的其余参数自动拼 query string，
+  # POST/PUT/PATCH 的其余参数作 JSON body；headers 值以 "env:" 开头表示读环境变量。
+  # - name: nce_query_user
+  #   description: 查询 NCE 系统用户信息
+  #   parameters:
+  #     type: object
+  #     properties:
+  #       user_id: {type: string, description: 用户 ID}
+  #     fields: {type: array, items: {type: string}, description: 返回字段}
+  #     required: [user_id]
+  #     additionalProperties: false
+  #   runtime:
+  #     type: http
+  #     url: https://nce.example.com/api/users/{user_id}
+  #     method: GET
+  #     headers:
+  #       Authorization: "env:NCE_API_TOKEN"
+  #     timeout: 30
+
+  # —— 示例 2：命令行工具 ——
+  # command 中 {参数名} 占位，值自动做 shell 转义后经系统 shell 执行，
+  # stdout 作为结果，非零退出码记为调用失败（进入纠错率统计）。
+  # - name: nce_device_status
+  #   description: 查询 NCE 设备状态
+  #   parameters:
+  #     type: object
+  #     properties:
+  #       device_id: {type: string, description: 设备 ID}
+  #     required: [device_id]
+  #     additionalProperties: false
+  #   runtime:
+  #     type: cli
+  #     command: nce-cli device status --id {device_id}
+  #     timeout: 60
+  #     # workdir: /opt/nce        # 可选：工作目录
+  #     # env: {NCE_PROFILE: prod} # 可选：并入子进程环境变量

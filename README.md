@@ -114,8 +114,29 @@ groups:
 
 - **新平台**：实现 `platforms/base.py` 里的 `AgentPlatform` 协议
   （`run(task, group_id) -> Trace`），配置里写 `platform: pkg.module:ClassName`。
-- **NCE 工具执行器**：任意 `callable(name: str, args: dict) -> str`。
-  配置 `executor: demo` 用内置演示；`executor: pkg.module:factory` 用你自己的。
+- **NCE 工具执行器**：三种方式按工具路由——
+  1. **HTTP API 接口工具**：在 `nce_tools.yaml` 的工具下声明
+     ```yaml
+     runtime:
+       type: http
+       url: https://nce.example.com/api/users/{user_id}   # {参数名} 占位
+       method: GET          # GET/DELETE：其余参数拼 query；POST/PUT/PATCH：其余参数作 JSON body
+       headers: {Authorization: "env:NCE_API_TOKEN"}      # "env:" 前缀读环境变量
+       timeout: 30
+     ```
+  2. **命令行工具**：
+     ```yaml
+     runtime:
+       type: cli
+       command: nce-cli device status --id {device_id}    # {参数名} 占位，自动 shell 转义
+       timeout: 60
+       # workdir: /opt/nce        # 可选
+       # env: {NCE_PROFILE: prod} # 可选
+     ```
+     stdout 作为结果，非零退出码/超时记为调用失败（进入纠错率统计）。
+  3. **Python 执行器**（未声明 runtime 的工具回退到这里）：任意
+     `callable(name, args) -> str`，配置 `executor: demo` 用内置演示，
+     `executor: pkg.module:factory` 用你自己的。
 - **LLM Judge**（可选，判定“Skill 是否与任务无关”“参数语义张冠李戴”“开放式答案”）：
 
   ```yaml

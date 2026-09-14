@@ -73,17 +73,22 @@ def build_platform(group_cfg: dict, ctx: PlatformContext):
     return cls(ctx)
 
 
-def build_executor(cfg: dict | None):
-    """执行器配置：缺省/ 'demo' -> 内置演示执行器；否则 dotted.path:factory。"""
+def build_executor(cfg: dict | None, tool_reg: ToolRegistry):
+    """构造执行入口：注册表中声明了 runtime 的工具走 HTTP/CLI 运行时，
+    其余回退到 Python 执行器（缺省/ 'demo' -> 内置演示执行器；否则 dotted.path:factory）。"""
+    fallback = None
     if cfg is None or cfg == "demo":
         from .demo_tools import demo_executor
-        return demo_executor
-    if isinstance(cfg, str):
-        return load_object(cfg)()
-    if isinstance(cfg, dict) and "type" in cfg:
+        fallback = demo_executor
+    elif isinstance(cfg, str):
+        fallback = load_object(cfg)()
+    elif isinstance(cfg, dict) and "type" in cfg:
         obj = load_object(cfg["type"])
-        return obj(**{k: v for k, v in cfg.items() if k != "type"})
-    raise ValueError(f"无法解析 executor 配置: {cfg!r}")
+        fallback = obj(**{k: v for k, v in cfg.items() if k != "type"})
+    else:
+        raise ValueError(f"无法解析 executor 配置: {cfg!r}")
+    from .executors import build_dispatcher
+    return build_dispatcher(tool_reg, fallback)
 
 
 # ---------- 运行 ----------
@@ -117,7 +122,7 @@ def run_experiment(config_path: str, tasks_path: str, out_dir: str,
             model=merged.get("model") or {},
             skills=skills,
             tools=tool_reg,
-            executor=build_executor(merged.get("executor")),
+            executor=build_executor(merged.get("executor"), tool_reg),
             max_turns=merged.get("max_turns", 12),
             skill_tool_name=merged.get("skill_tool_name", "Skill"),
             extra={k: v for k, v in merged.items() if k not in
